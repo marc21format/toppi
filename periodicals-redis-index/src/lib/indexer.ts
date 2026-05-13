@@ -349,3 +349,38 @@ export async function deleteRecord(id: string): Promise<void> {
 
   await pipeline.exec();
 }
+
+// Get all records from Redis
+export async function getAllRecords(): Promise<PeriodicalRecord[]> {
+  const client = await getRedisClient();
+  if (!client) {
+    throw new Error("Redis client is unavailable.");
+  }
+
+  const allDocIds = await client.sMembers(DOCS_KEY);
+  if (allDocIds.length === 0) {
+    return [];
+  }
+
+  const docs = await Promise.all(
+    allDocIds.map(async (id) => {
+      const document = await client.hGetAll(docKey(id));
+      return {
+        id: document.id,
+        title: document.title,
+        publication: document.publication,
+        issue: document.issue,
+        publishedAt: document.publishedAt,
+        authors: JSON.parse(document.authors || "[]") as string[],
+        summary: document.summary,
+        tags: JSON.parse(document.tags || "[]") as string[],
+        content: document.content,
+        indexedAt: document.indexedAt,
+        holdings: document.holdings,
+        digitalCopyLink: document.digitalCopyLink,
+      } satisfies PeriodicalRecord;
+    })
+  );
+
+  return docs.filter((item) => item.title && item.publication);
+}

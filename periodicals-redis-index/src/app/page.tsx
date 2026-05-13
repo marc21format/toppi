@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useCallback } from "react";
+import { FormEvent, useMemo, useState, useCallback, useEffect } from "react";
 import { samplePeriodicals, type PeriodicalRecord } from "@/lib/periodicals";
+
 
 type SearchResult = PeriodicalRecord & {
   score: number;
@@ -104,6 +105,29 @@ export default function Home() {
   const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [editToConfirm, setEditToConfirm] = useState<Partial<PeriodicalRecord> | null>(null);
+
+  // Load all records from Redis on mount
+  useEffect(() => {
+    async function loadRecords() {
+      try {
+        const response = await fetch("/api/records");
+        const data = (await response.json()) as {
+          ok: boolean;
+          records?: any[];
+        };
+
+        if (data.ok && data.records && data.records.length > 0) {
+          setAllRecordsList(data.records);
+          setRecordsList(data.records);
+        }
+      } catch (error) {
+        console.error("Failed to load records from Redis:", error);
+        // Falls back to sample periodicals if fetch fails
+      }
+    }
+
+    loadRecords();
+  }, []);
 
   // ===== CALLBACK FUNCTIONS FOR BUTTONS =====
   const handleOpenPublicationsModal = useCallback(() => {
@@ -1822,7 +1846,7 @@ export default function Home() {
                                   runSearch("");
                                 }
                               }}
-                              className="h-4 w-4 rounded border-gray-300"
+                              className="h-4 w-4 rounded border-gray-300 accent-gray-400"
                             />
 
                             <span className="flex-1 text-gray-700">{creator}</span>
@@ -1890,7 +1914,7 @@ export default function Home() {
                                 runSearch("");
                               }
                             }}
-                            className="h-4 w-4 rounded border-gray-300"
+                            className="h-4 w-4 rounded border-gray-300 accent-gray-400"
                           />
                           <span className="flex-1 text-gray-700">{subject}</span>
                           <span className="text-xs text-gray-500">({count})</span>
@@ -1946,7 +1970,7 @@ export default function Home() {
                                 runSearch("");
                               }
                             }}
-                            className="h-4 w-4 rounded border-gray-300"
+                            className="h-4 w-4 rounded border-gray-300 accent-gray-400"
                           />
                           <span className="flex-1 text-gray-700">{periodical}</span>
                           <span className="text-xs text-gray-500">({count})</span>
@@ -2002,7 +2026,7 @@ export default function Home() {
                                 runSearch("");
                               }
                             }}
-                            className="h-4 w-4 rounded border-gray-300"
+                            className="h-4 w-4 rounded border-gray-300 accent-gray-400"
                           />
                           <span className="flex-1 text-gray-700">{year}</span>
                           <span className="text-xs text-gray-500">({count})</span>
