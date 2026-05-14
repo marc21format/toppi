@@ -845,46 +845,44 @@ export default function Home() {
 
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="mb-8">
-              <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="mb-6 flex items-center justify-center gap-6">
                 <button
                   onClick={handlePreviousRecord}
                   disabled={!canGoPrevious}
-                  className="text-lg font-semibold text-gray-500 disabled:cursor-not-allowed"
+                  className="text-base font-semibold text-gray-600 hover:text-gray-900 disabled:cursor-not-allowed disabled:text-gray-400"
                 >
-                  ← Previous Record
+                  ← Previous
                 </button>
-                <span className="text-lg font-semibold text-gray-700">
-                  Record 
-                </span>
-                <input
-                  type="number"
-                  min="1"
-                  max={recordsList.length}
-                  value={jumpInput || (recordIndex + 1)}
-                  onChange={(e) => setJumpInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && jumpInput) {
-                      handleJumpToRecord(parseInt(jumpInput));
-                    }
-                  }}
-                  onBlur={() => {
-                    if (jumpInput) {
-                      handleJumpToRecord(parseInt(jumpInput));
-                    } else {
-                      setJumpInput("");
-                    }
-                  }}
-                  className="w-16 rounded-lg border border-gray-300 bg-white px-2 py-1 text-center text-lg font-semibold text-gray-900 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20"
-                />
-                <span className="text-lg font-semibold text-gray-700">
-                  of {recordsList.length}
-                </span>
+                <div className="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2">
+                  <span className="text-sm font-semibold text-gray-600">Record</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={recordsList.length}
+                    value={jumpInput || (recordIndex >= 0 ? recordIndex + 1 : recordsList.length)}
+                    onChange={(e) => setJumpInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && jumpInput) {
+                        handleJumpToRecord(parseInt(jumpInput));
+                      }
+                    }}
+                    onBlur={() => {
+                      if (jumpInput) {
+                        handleJumpToRecord(parseInt(jumpInput));
+                      } else {
+                        setJumpInput("");
+                      }
+                    }}
+                    className="w-14 rounded border border-gray-300 bg-white px-2 py-1 text-center text-base font-semibold text-gray-900 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20"
+                  />
+                  <span className="text-sm font-semibold text-gray-600">of {recordsList.length}</span>
+                </div>
                 <button
                   onClick={handleNextRecord}
                   disabled={!canGoNext}
-                  className="text-lg font-semibold text-gray-600 disabled:cursor-not-allowed disabled:text-gray-500 hover:text-gray-700"
+                  className="text-base font-semibold text-gray-600 hover:text-gray-900 disabled:cursor-not-allowed disabled:text-gray-400"
                 >
-                  Next Record →
+                  Next →
                 </button>
               </div>
             </div>
