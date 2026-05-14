@@ -845,7 +845,7 @@ export default function Home() {
 
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="mb-8">
-              <div className="mb-6 flex items-center justify-center gap-6">
+              <div className="mb-6 flex items-center justify-center gap-4">
                 <button
                   onClick={handlePreviousRecord}
                   disabled={!canGoPrevious}
@@ -853,30 +853,28 @@ export default function Home() {
                 >
                   ← Previous
                 </button>
-                <div className="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2">
-                  <span className="text-sm font-semibold text-gray-600">Record</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max={recordsList.length}
-                    value={jumpInput || (recordIndex >= 0 ? recordIndex + 1 : recordsList.length)}
-                    onChange={(e) => setJumpInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && jumpInput) {
-                        handleJumpToRecord(parseInt(jumpInput));
-                      }
-                    }}
-                    onBlur={() => {
-                      if (jumpInput) {
-                        handleJumpToRecord(parseInt(jumpInput));
-                      } else {
-                        setJumpInput("");
-                      }
-                    }}
-                    className="w-14 rounded border border-gray-300 bg-white px-2 py-1 text-center text-base font-semibold text-gray-900 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20"
-                  />
-                  <span className="text-sm font-semibold text-gray-600">of {recordsList.length}</span>
-                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max={recordsList.length}
+                  value={jumpInput || (recordIndex >= 0 ? recordIndex + 1 : recordsList.length)}
+                  onChange={(e) => setJumpInput(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && jumpInput) {
+                      handleJumpToRecord(parseInt(jumpInput));
+                    }
+                  }}
+                  onBlur={() => {
+                    if (jumpInput) {
+                      handleJumpToRecord(parseInt(jumpInput));
+                    } else {
+                      setJumpInput("");
+                    }
+                  }}
+                  className="w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-base font-semibold text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+                <span className="text-sm font-semibold text-gray-600">/ {recordsList.length}</span>
                 <button
                   onClick={handleNextRecord}
                   disabled={!canGoNext}
