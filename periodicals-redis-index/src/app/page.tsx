@@ -98,6 +98,9 @@ export default function Home() {
   
   // Edit mode state
   const [editingRecord, setEditingRecord] = useState<Partial<PeriodicalRecord> | null>(null);
+  
+  // Jump to record state
+  const [jumpInput, setJumpInput] = useState<string>("");
   const [showEditModal, setShowEditModal] = useState(false);
   
   // Confirmation modal state
@@ -223,6 +226,7 @@ export default function Home() {
       setRecordsJson(JSON.stringify(parsed, null, 2));
       setRecordsList([...recordsList, ...parsed]);
       setAllRecordsList([...allRecordsList, ...parsed]);
+      setSelectedRecord(parsed[0]);
     } catch (error) {
       setIndexStats({
         message: error instanceof Error ? error.message : "Unable to parse or index the CSV file.",
@@ -313,6 +317,13 @@ export default function Home() {
   const handleNextRecord = () => {
     if (canGoNext) {
       setSelectedRecord(recordsList[recordIndex + 1]);
+    }
+  };
+
+  const handleJumpToRecord = (recordNum: number) => {
+    if (recordNum >= 1 && recordNum <= recordsList.length) {
+      setSelectedRecord(recordsList[recordNum - 1]);
+      setJumpInput("");
     }
   };
 
@@ -680,6 +691,14 @@ export default function Home() {
         prev.map((r) => r.id === selectedRecord.id ? updated : r)
       );
       
+      try {
+        const parsed = JSON.parse(recordsJson) as PeriodicalRecord[];
+        const updatedJson = parsed.map((r) => r.id === selectedRecord.id ? updated : r);
+        setRecordsJson(JSON.stringify(updatedJson, null, 2));
+      } catch {
+        // If JSON parsing fails, skip updating recordsJson
+      }
+      
       setSelectedRecord(updated);
       
       setShowEditModal(false);
@@ -746,6 +765,7 @@ export default function Home() {
 
       setRecordsList(prev => [...prev, record]);
       setAllRecordsList(prev => [...prev, record]);
+      setSelectedRecord(record);
 
       try {
         const existing = JSON.parse(recordsJson) as PeriodicalRecord[];
@@ -834,7 +854,30 @@ export default function Home() {
                   ← Previous Record
                 </button>
                 <span className="text-lg font-semibold text-gray-700">
-                  Record {recordIndex + 1} of {recordsList.length}
+                  Record 
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  max={recordsList.length}
+                  value={jumpInput || (recordIndex + 1)}
+                  onChange={(e) => setJumpInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && jumpInput) {
+                      handleJumpToRecord(parseInt(jumpInput));
+                    }
+                  }}
+                  onBlur={() => {
+                    if (jumpInput) {
+                      handleJumpToRecord(parseInt(jumpInput));
+                    } else {
+                      setJumpInput("");
+                    }
+                  }}
+                  className="w-16 rounded-lg border border-gray-300 bg-white px-2 py-1 text-center text-lg font-semibold text-gray-900 focus:border-gray-500 focus:ring-2 focus:ring-gray-500/20"
+                />
+                <span className="text-lg font-semibold text-gray-700">
+                  of {recordsList.length}
                 </span>
                 <button
                   onClick={handleNextRecord}
@@ -1597,7 +1640,7 @@ export default function Home() {
       {/* Edit Modal */}
       {showEditModal && editingRecord && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 p-4 z-50">
-          <div className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-white p-8 shadow-2xl">
             <h2 className="mb-6 text-2xl font-bold text-gray-900">Edit Record</h2>
             <form onSubmit={(e: any) => {
               e.preventDefault();
